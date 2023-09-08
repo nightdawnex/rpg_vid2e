@@ -1,13 +1,14 @@
 import argparse
 from operator import sub
 import os
+import sys
 import esim_torch
 import numpy as np
 import glob
 import cv2
 import tqdm
 import torch
-
+import pickle
 
 def is_valid_dir(subdirs, files):
     return len(subdirs) == 1 and len(files) == 1 and "timestamps.txt" in files and "imgs" in subdirs
@@ -32,6 +33,7 @@ def process_dir(outdir, indir, args):
     num_events = 0
 
     counter = 0
+    x, y, p, t = [], [], [], []
     for image_file, timestamp_ns in zip(image_files, timestamps_ns):
         image = cv2.imread(image_file, cv2.IMREAD_GRAYSCALE)
         log_image = np.log(image.astype("float32") / 255 + 1e-5)
@@ -45,13 +47,27 @@ def process_dir(outdir, indir, args):
 
         sub_events = {k: v.cpu() for k, v in sub_events.items()}    
         num_events += len(sub_events['t'])
- 
+        x.append(sub_events['x'])
+        y.append(sub_events['y'])
+        p.append(sub_events['p'])
+        t.append(sub_events['t'])
+
+       
         # do something with the events
-        np.savez(os.path.join(outdir, "%010d.npz" % counter), **sub_events)
+        #np.savez(os.path.join(outdir, "%010d.npz" % counter), **sub_events)
         pbar.set_description(f"Num events generated: {num_events}")
         pbar.update(1)
         counter += 1
-
+    x= np.concatenate(x)
+    y= np.concatenate(y)
+    p= np.concatenate(p)
+    t= np.concatenate(t)
+    # create record array 
+    events = np.rec.fromarrays([x, y, p, t], names='x,y,p,t')
+    # save to file
+    with open(os.path.join(outdir, 'events.pkl'), 'wb') as f:
+        pickle.dump(events, f)
+        
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("""Generate events from a high frequency video stream""")

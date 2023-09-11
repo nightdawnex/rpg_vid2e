@@ -19,12 +19,12 @@ def run_v2e(input,output):
     os.makedirs(frames_dir,exist_ok=True)
 
     for index,image in enumerate(images):
-        image = np.pad(image,((14,14),(3,3)),'constant', constant_values=0))
+        #image = np.pad(image,((14,14),(3,3)),'constant', constant_values=0))
         cv2.imwrite(os.path.join(frames_dir,str(index).zfill(6)+'.png'),image)
     
     #determine the fps
     timestamp_diff = timestamps[1:]-timestamps[:-1]
-    fps = 1e6/timestamp_diff.mean()
+    fps = 1e7/timestamp_diff.mean()
     #print(output+'/original/seq/fps.txt')
     # write fps to file
     with open(output+'/fps.txt','w+') as f:

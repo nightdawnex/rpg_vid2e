@@ -97,6 +97,7 @@ class Upsampler:
     def _write_img(img: np.ndarray, idx: int, imgs_dir: str):
         assert os.path.isdir(imgs_dir)
         img = np.clip(img * 255, 0, 255).astype("uint8")
+        img = img[14:260+14, 3:346+3]
         path = os.path.join(imgs_dir, "%08d.png" % idx)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         cv2.imwrite(path, img)

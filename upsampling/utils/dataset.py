@@ -57,13 +57,16 @@ class ImageSequence(Sequence):
             img = img.convert('RGB')
 
             w_orig, h_orig = img.size
-            w, h = w_orig//32*32, h_orig//32*32
+            w,h = int(np.ceil(w_orig/32)*32), int(np.ceil(h_orig/32)*32)
+            img = np.pad(img,(((int((h-h_orig)//2),int(h-h_orig - (h-h_orig)//2))),(int((w-w_orig)//2),int(w-w_orig - (w-w_orig)//2)),(0,0)),'constant', constant_values=0)
+            
+            # w, h = w_orig//32*32, h_orig//32*32
 
-            left = (w_orig - w)//2
-            upper = (h_orig - h)//2
-            right = left + w
-            lower = upper + h
-            img = img.crop((left, upper, right, lower))
+            # left = (w_orig - w)//2
+            # upper = (h_orig - h)//2
+            # right = left + w
+            # lower = upper + h
+            # img = img.crop((left, upper, right, lower))
             return np.array(img).astype("float32") / 255
 
     def _get_path_from_name(self, file_names: Union[list, str]) -> Union[list, str]:
@@ -90,14 +93,17 @@ class VideoSequence(Sequence):
     def __next__(self):
         for idx, frame in enumerate(self.videogen):
             h_orig, w_orig, _ = frame.shape
-            w, h = w_orig//32*32, h_orig//32*32
+            w,h = np.ceil(w_orig/32)*32, np.ceil(h_orig/32)*32
+            frame = np.pad(frame,(((h-h_orig)//2,h-h_orig - (h-h_orig)//2),(w-w_orig)//2,w-w_orig - (w-w_orig)//2,(0,0)),'constant', constant_values=0)
 
-            left = (w_orig - w)//2
-            upper = (h_orig - h)//2
-            right = left + w
-            lower = upper + h
-            frame = frame[upper:lower, left:right].astype("float32") / 255
-            assert frame.shape[:2] == (h, w)
+            # w, h = w_orig//32*32, h_orig//32*32
+
+            # left = (w_orig - w)//2
+            # upper = (h_orig - h)//2
+            # right = left + w
+            # lower = upper + h
+            # frame = frame[upper:lower, left:right].astype("float32") / 255
+            # assert frame.shape[:2] == (h, w)
 
             if self.last_frame is None:
                 self.last_frame = frame

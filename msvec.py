@@ -3,6 +3,8 @@ import os
 import subprocess 
 import cv2 
 from tqdm import tqdm
+import numpy as np
+
 
 def run_v2e(input,output):
     #create the output directory if not exist
@@ -17,6 +19,7 @@ def run_v2e(input,output):
     os.makedirs(frames_dir,exist_ok=True)
 
     for index,image in enumerate(images):
+        image = np.pad(image,((14,14),(3,3)),'constant', constant_values=0))
         cv2.imwrite(os.path.join(frames_dir,str(index).zfill(6)+'.png'),image)
     
     #determine the fps

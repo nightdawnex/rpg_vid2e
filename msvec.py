@@ -15,7 +15,7 @@ def run_v2e(input,output):
         images = file['images']
         timestamps = file['timestamps']
     # output images to folder
-    frames_dir = output+'imgs'
+    frames_dir = output+'/imgs'
     os.makedirs(frames_dir,exist_ok=True)
 
     for index,image in enumerate(images):
